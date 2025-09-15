@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happy Monthsarry, Love</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Inter:wght@400;600;700&family=Rock+Salt&display=swap" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    :root{
+      --env-w: clamp(260px, 80vw, 380px);
+      --env-h: calc(var(--env-w) * 0.66);
+      --card-w: calc(var(--env-w) - 30px);
+      --card-h: calc(var(--env-h) - 30px);
+
+      --lift-y: clamp(96px, calc(var(--env-h) * 0.62), 180px);
+      --content-shift: clamp(24px, 6.5vh, 44px);
+      --stack-offset: clamp(140px, 20vh, 340px);
+
+      --brand-1:#e11d48;
+      --brand-2:#fb7185;
+      --ink:#0f172a;
+      --ink-soft:#334155;
+      --paper:#eae2b7;
+      --env:#f08080;
+      --env-dark:#f4978e;
+      --env-light:#f8ad9d;
+      --bg:#fae1dd;
+    }
+
+    * { box-sizing:border-box; margin:0; padding:0; }
+
+    body{
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(1200px 800px at 50% -10%, #ffe5e1 0%, var(--bg) 40%, #f8d6cf 100%);
+      overflow-x:hidden;
+    }
+
+    .container{ width:min(92vw, 520px); display:grid; place-items:center; }
+
+    .valentines{
+      position:relative;
+      width:var(--env-w);
+      height:calc(var(--env-h) + 110px);
+      margin-top: var(--stack-offset);
+      animation: floatY 4s ease-in-out infinite;
+    }
+    @keyframes floatY{
+      0%,100%{ transform: translateY(0) }
+      50%{ transform: translateY(-14px) }
+    }
+
+    /* Envelope base */
+    .envelope{
+      position:absolute;
+      top:40px; left:0;
+      width:var(--env-w); height:var(--env-h);
+      background:var(--env);
+      border-radius:10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.15);
+      z-index:1;
+    }
+    .envelope:before{
+      content:"";
+      position:absolute;
+      width: calc(var(--env-w) * 0.7);
+      height: calc(var(--env-w) * 0.7);
+      transform: rotate(45deg);
+      top: calc(-1 * var(--env-w) * 0.34);
+      left: calc(var(--env-w) * 0.145);
+      background:var(--env);
+      border-radius:24px 0 0 0;
+      z-index:2;
+      pointer-events:none;
+    }
+
+    /* Card (between base and flap) */
+    .card{
+      position:absolute;
+      left:15px; top: calc(40px + 15px);
+      width:var(--card-w); height:var(--card-h);
+      background:var(--paper);
+      border-radius:12px;
+      box-shadow: -6px -6px 60px rgba(0,0,0,.25);
+      z-index:10;
+      transition: transform .25s ease, box-shadow .25s ease, z-index .01s linear;
+      overflow:hidden;
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:12px;
+      border:2px dashed var(--ink);
+      border-radius:10px; opacity:.35; pointer-events:none;
+    }
+    .card-body{
+      position:relative;                  /* anchor for absolute button */
+      height:100%; width:100%;
+      display:grid;
+      grid-template-rows: 1fr;            /* content fills space */
+      align-items:center;
+      padding: var(--content-shift) clamp(10px, 3vw, 16px) clamp(52px, 9vh, 72px); /* extra bottom room for button */
+      text-align:center;
+    }
+    .text{
+      align-self:center;
+      font-family:"Brush Script MT","Caveat",cursive;
+      font-size: clamp(20px, 5.2vw, 34px);
+      line-height:1.2;
+      padding: 0 clamp(6px, 2vw, 10px);
+      margin:0;
+      word-break: break-word;
+    }
+
+    /* Center-bottom 'See more' button */
+    .reveal-btn{
+      position:absolute;
+      left:50%;
+      bottom: clamp(10px, 2.6vh, 16px);
+      transform: translateX(-50%);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      appearance:none; border:0; cursor:pointer;
+      padding: 10px 14px;
+      border-radius: 12px;
+      width: auto; max-width: calc(100% - 24px);
+      white-space: nowrap; line-height: 1;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 600;
+      font-size: clamp(13px, 2.4vw, 15px);
+      letter-spacing: .1px;
+      color:#fff;
+      background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%);
+      border: 1px solid rgba(255,255,255,.25);
+      box-shadow: 0 8px 18px rgba(225,29,72,.22);
+      transition: transform .1s ease, box-shadow .2s ease, filter .2s ease;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    .reveal-btn:hover{ transform: translateX(-50%) translateY(-1px); filter: saturate(1.02) }
+    .reveal-btn:active{ transform: translateX(-50%) scale(.985) }
+
+    /* Flap */
+    .front{
+      position:absolute;
+      left: calc(var(--env-w) * 0.4); top:45px;
+      border-right: calc(var(--env-w) * 0.6) solid var(--env-dark);
+      border-top: calc(var(--env-h) * 0.48) solid transparent;
+      border-bottom: calc(var(--env-h) * 0.5) solid transparent;
+      width:0; height:0; z-index:20; pointer-events:none;
+    }
+    .front:before{
+      content:"";
+      position:absolute;
+      left: calc(-1 * var(--env-w) * 0.4);
+      top: calc(-1 * var(--env-h) * 0.48);
+      border-left: var(--env-w) solid var(--env-light);
+      border-top: calc(var(--env-h) - 5px) solid transparent;
+      width:0; height:0; z-index:20; pointer-events:none;
+    }
+
+    /* Pop-up states */
+    .valentines:hover .card,
+    .card:focus-within,
+    .card.lift{
+      transform: translateY(calc(-1 * var(--lift-y)));
+      box-shadow: 0 22px 50px rgba(0,0,0,.32);
+      z-index:25;
+    }
+
+    /* Hearts */
+    .hearts{
+      position:absolute; top:40px; left:0;
+      width:var(--env-w); height:var(--env-h);
+      overflow:hidden; z-index:0; pointer-events:none;
+    }
+    .one,.two,.three,.four,.five{
+      position:absolute; width:12px; height:12px; transform: rotate(-45deg);
+      background:#ef4444;
+    }
+    .one:before,.two:before,.three:before,.four:before,.five:before,
+    .one:after,.two:after,.three:after,.four:after,.five:after{
+      content:""; position:absolute; border-radius:50%; width:12px; height:12px; background:#ef4444;
+    }
+    .one:before,.two:before,.three:before,.four:before,.five:before{ top:-6px; left:0 }
+    .one:after,.two:after,.three:after,.four:after,.five:after{ top:0; left:6px }
+
+    .one{ left: 15%; top: calc(var(--env-h) - 10px); animation: heart 5s ease-out infinite }
+    .two{ left: 35%; top: calc(var(--env-h) - 10px); animation: heart 7s ease-out infinite }
+    .three{ left: 55%; top: calc(var(--env-h) - 10px); animation: heart 6s ease-out infinite }
+    .four{ left: 75%; top: calc(var(--env-h) - 10px); animation: heart 8s ease-out infinite }
+    .five{ left: 90%; top: calc(var(--env-h) - 10px); animation: heart 9s ease-out infinite }
+
+    @keyframes heart{
+      0%{ transform: translateY(0) rotate(-45deg) scale(.35); opacity:1 }
+      100%{ transform: translateY(-240px) rotate(-45deg) scale(1.15); opacity:0 }
+    }
+
+    .shadow{
+      position:absolute;
+      width: calc(var(--env-w) + 30px);
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.28);
+      top: calc(var(--env-h) + 70px);
+      left:50%; transform: translateX(-50%);
+      animation: squish 3.2s ease-in-out infinite;
+      filter: blur(4px);
+      z-index:-1;
+    }
+    @keyframes squish{
+      0%,100%{ transform:translateX(-50%) scaleX(1) }
+      50%{ transform:translateX(-50%) scaleX(.85) }
+    }
+
+    /* Modal (letter/photos) */
+    .backdrop{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(2px);
+      display:none; z-index: 998;
+    }
+    .card1{
+      position: fixed;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%);
+      background: var(--paper);
+      width: min(96vw, 720px);
+      max-width: 720px;
+      max-height: 88vh;
+      display:none; padding: clamp(18px, 3.5vw, 28px);
+      z-index: 999; border-radius: 16px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.35);
+      overflow:auto; scrollbar-width:none; -ms-overflow-style:none;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card1::-webkit-scrollbar{ display:none; }
+
+    .card1-header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin-bottom:12px; padding-bottom:4px;
+    }
+    .card1-title{
+      font-family: "Caveat", cursive;
+      font-weight:600;
+      font-size: clamp(22px, 3.2vw, 30px);
+      line-height:1;
+      color: var(--ink);
+      letter-spacing: 0;
+      position:relative;
+    }
+    .card1-title::after{
+      content:"";
+      display:block;
+      width:72px; height:4px;
+      margin-top:8px;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--brand-1), var(--brand-2));
+      opacity:.9;
+    }
+    .close-btn{
+      appearance:none; border:0; cursor:pointer;
+      width:36px; height:36px; border-radius:10px;
+      display:grid; place-items:center;
+      background: #fff6;
+      box-shadow: inset 0 0 0 1px #fff5;
+      transition: background .2s ease;
+    }
+    .close-btn:hover{ background:#fff8 }
+
+    .pages{ display:block; }
+    .page{ display:none; }
+    .page.active{ display:block; }
+
+    .letter-text{
+      font-family: "Caveat", cursive;
+      font-size: clamp(18px, 2.8vw, 22px);
+      line-height:1.6;
+      color: var(--ink);
+      text-align:left;
+      margin-top: 6px;
+      white-space: pre-wrap;
+    }
+    .letter-text p{ margin: 0 0 14px }
+
+    /* Pager: visible ONLY on Letter page */
+    .pager{
+      position: sticky;
+      bottom: 0;
+      padding-top: 10px;
+      margin-top: 8px;
+      background: linear-gradient(to top, rgba(234,226,183,0.98) 65%, rgba(234,226,183,0));
+    }
+    .pager-inner{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .pager-cta{
+      --shadow: rgba(235,56,87,.36);
+      appearance:none; border:0; cursor:pointer;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: 800;
+      letter-spacing:.3px;
+      font-size: 15px;
+      color: #fff;
+      background:
+        radial-gradient(120% 120% at 10% 0%, rgba(255,255,255,.26) 0%, rgba(255,255,255,0) 55%),
+        linear-gradient(135deg, var(--brand-1), var(--brand-2));
+      box-shadow:
+        0 10px 26px var(--shadow),
+        inset 0 0 0 1px rgba(255,255,255,.35);
+      transition: transform .12s ease, filter .25s ease, box-shadow .25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .pager-cta:hover{ filter: brightness(1.06); transform: translateY(-1px); }
+    .pager-cta:active{ transform: scale(.98) }
+
+    /* -------- Polaroid gallery (Page 2) -------- */
+    .polaroid-grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: clamp(14px, 2.6vw, 20px);
+      align-items:start;
+      justify-items:center;
+    }
+    @media (min-width: 600px){
+      .polaroid-grid{
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+      }
+    }
+
+    .polaroid{
+      --frame: clamp(12px, 1.4vw, 18px);
+      --tilt: 0deg;
+      background:#fff;
+      border: var(--frame) solid #fff;
+      border-bottom-width: calc(var(--frame) * 3.1);
+      border-radius: 10px;
+      box-shadow: 0 14px 34px rgba(0,0,0,.18);
+      position: relative;
+      transform: rotate(var(--tilt));
+      max-width: 100%;
+      width: 100%;
+    }
+    .polaroid--rotate-left{  --tilt: -2deg; }
+    .polaroid--rotate-right{ --tilt:  2deg; }
+
+    .polaroid__image{
+      display:block;
+      width:100%;
+      height:auto;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      border-radius: 6px;
+      image-rendering: auto;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+      cursor: zoom-in;
+    }
+    .polaroid__caption{
+      position:absolute;
+      left: 0; right: 0;
+      bottom: calc(var(--frame) * -2.4);
+      text-align:center;
+      font-family: 'Rock Salt', 'Caveat', cursive;
+      font-size: clamp(11px, 2.4vw, 14px);
+      color:#222;
+      transform: rotate(-1deg);
+      user-select:none;
+      pointer-events:none;
+    }
+
+    @media (max-height: 720px){
+      :root{ --stack-offset: clamp(24px, 6vh, 120px); }
+    }
+
+    /* ===================== */
+    /* Accessibility & polish */
+    /* ===================== */
+    :root { --focus-ring: #e11d48; }
+
+    .reveal-btn:focus-visible,
+    .close-btn:focus-visible,
+    .pager-cta:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 3px #fff6, 0 0 0 6px color-mix(in srgb, var(--focus-ring) 30%, transparent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .valentines, .one, .two, .three, .four, .five { animation: none !important; }
+      .reveal-btn, .card, .pager-cta { transition: none !important; }
+    }
+
+    body.modal-open { overflow: hidden; }
+
+    .card, .valentines, .one, .two, .three, .four, .five { will-change: transform; }
+
+    .card1 { touch-action: pan-y; }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,.85);
+      z-index: 1000;
+    }
+    .lightbox[aria-hidden="false"] { display: grid; }
+    .lightbox__img {
+      max-width: min(92vw, 960px);
+      max-height: 88vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .lightbox__hint {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font: 500 12px/1 Inter, system-ui, sans-serif;
+      opacity: .75;
+      user-select: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="valentines" aria-label="Valentine envelope with card">
+      <div class="envelope"></div>
+
+      <div class="card" id="card">
+        <div class="card-body">
+          <div class="text">Happy<br>Monthsarry,<br>Love!</div>
+          <button class="reveal-btn" type="button" aria-haspopup="dialog" aria-controls="card1" id="readMoreBtn">
+            See more
+          </button>
+        </div>
+      </div>
+
+      <div class="front"></div>
+
+      <div class="hearts" aria-hidden="true">
+        <div class="one"></div>
+        <div class="two"></div>
+        <div class="three"></div>
+        <div class="four"></div>
+        <div class="five"></div>
+      </div>
+
+      <div class="shadow" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="backdrop" id="backdrop"></div>
+  <div class="card1" id="card1" role="dialog" aria-modal="true" aria-labelledby="card1Title">
+    <div class="card1-header">
+      <div class="card1-title" id="card1Title">A little letter for you</div>
+      <button class="close-btn" type="button" id="closeBtn" aria-label="Close letter">✕</button>
+    </div>
+
+    <div class="pages" id="pages">
+      <!-- Page 1: Letter -->
+      <section class="page active" data-page="1" aria-label="Letter page">
+        <div id="letterText" class="letter-text"></div>
+      </section>
+
+      <!-- Page 2: Photos -->
+      <section class="page" data-page="2" aria-label="Photo page" aria-hidden="true">
+        <div class="polaroid-grid" id="polaroidGrid">
+          <figure class="polaroid polaroid--rotate-left">
+            <img src="J.C.O.jpg" alt="JCO moment" class="polaroid__image" loading="lazy" decoding="async" />
+            <figcaption class="polaroid__caption">J.C.O</figcaption>
+          </figure>
+
+          <figure class="polaroid polaroid--rotate-right">
+            <img src="SM.jpg" alt="SM Megamall, July" class="polaroid__image" loading="lazy" decoding="async" />
+            <figcaption class="polaroid__caption">SM Megamall, July</figcaption>
+          </figure>
+
+          <figure class="polaroid polaroid--rotate-left">
+            <img src="jco.jpg" alt="Sweet treats" class="polaroid__image" loading="lazy" decoding="async" />
+            <figcaption class="polaroid__caption">Sweet Treats</figcaption>
+          </figure>
+
+          <figure class="polaroid polaroid--rotate-right">
+            <img src="Museum.jpg" alt="National Museum" class="polaroid__image" loading="lazy" decoding="async" />
+            <figcaption class="polaroid__caption">National Museum, August</figcaption>
+          </figure>
+
+          <figure class="polaroid polaroid--rotate-left">
+            <img src="Dagupan.jpg" alt="Dagupan, April" class="polaroid__image" loading="lazy" decoding="async" />
+            <figcaption class="polaroid__caption">Dagupan, April</figcaption>
+          </figure>
+
+          <figure class="polaroid polaroid--rotate-right">
+            <img src="First Date.jpg" alt="First Date" class="polaroid__image" loading="lazy" decoding="async" />
+            <figcaption class="polaroid__caption">First Date</figcaption>
+          </figure>
+        </div>
+      </section>
+    </div>
+
+    <!-- Pager (only on letter page) -->
+    <div class="pager" id="pager">
+      <div class="pager-inner">
+        <button class="pager-cta" id="nextPage" type="button" aria-label="Next">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox for photos -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Photo viewer">
+    <img id="lightboxImg" class="lightbox__img" alt="Enlarged photo">
+    <div class="lightbox__hint">Tap or press Esc to close</div>
+  </div>
+
+  <script>
+    $(function(){
+      let letterShown = false;
+      let typingDone = false;
+
+      const $card = $('#card');
+      const $btn = $('#readMoreBtn');
+      const $backdrop = $('#backdrop');
+      const $modal = $('#card1');
+      const $letter = $('#letterText');
+
+      const $pagesWrap = $('#pages');
+      const $pages = $pagesWrap.find('.page');
+      const $next = $('#nextPage');
+      const $pager = $('#pager');
+      const $title = $('#card1Title');
+      const $container = $('.container');
+      const $closeBtn = $('#closeBtn');
+
+      // Lightbox
+      const $lightbox = $('#lightbox');
+      const $lightboxImg = $('#lightboxImg');
+
+      let currentPage = 0; // 0 => letter, 1 => photos
+      let lastFocused = null; // for focus restore on close
+
+      /* Lift behavior for touch & mouse (envelope card) */
+      let liftTimeout = null;
+      $card.on('pointerdown', function(e){
+        if ($(e.target).is('#readMoreBtn')) return;
+        $card.addClass('lift');
+        clearTimeout(liftTimeout);
+        liftTimeout = setTimeout(() => $card.removeClass('lift'), 1400);
+      });
+      $card.on('pointerleave pointercancel', function(){
+        clearTimeout(liftTimeout);
+        $card.removeClass('lift');
+      });
+      $btn.on('focus', () => $card.addClass('lift'));
+      $btn.on('blur',  () => $card.removeClass('lift'));
+
+      /* ---------- Paging ---------- */
+      function showPage(i){
+        currentPage = i;
+        $pages.removeClass('active').attr('aria-hidden','true')
+              .eq(i).addClass('active').attr('aria-hidden','false');
+        $modal.scrollTop(0);
+
+        // Header title per page
+        $title.text(i === 0 ? 'A little letter for you' : 'Snapshots of us');
+
+        // Show Next only on letter page
+        $pager.toggle(i === 0);
+
+        if (i === 0 && !typingDone) {
+          $next.prop('disabled', true);
+        } else {
+          $next.prop('disabled', false);
+        }
+      }
+
+      $next.on('click', function(){
+        if ($next.prop('disabled')) return;
+        showPage(1); // letter -> photos
+      });
+
+      /* ---------- Open modal ---------- */
+      function openModal(){
+        // Scroll lock & aria
+        document.body.classList.add('modal-open');
+        $container.attr('aria-hidden', 'true');
+
+        $backdrop.fadeIn(140);
+        $modal.fadeIn(180, () => {
+          // Focus the close button for keyboard users
+          $closeBtn.trigger('focus');
+        });
+
+        // Focus trap inside modal
+        $(document).on('keydown.modalTrap', trapFocus);
+
+        // Swipe: letter -> photos
+        addSwipeToNext();
+      }
+
+      /* ---------- Close modal ---------- */
+      function closeModal(){
+        removeSwipeToNext();
+        $(document).off('keydown.modalTrap');
+
+        $modal.fadeOut(160);
+        $backdrop.fadeOut(160, () => {
+          document.body.classList.remove('modal-open');
+          $container.removeAttr('aria-hidden');
+          // restore focus
+          if (lastFocused) lastFocused.focus();
+        });
+
+        $('.envelope, .front, .card').fadeIn(180);
+        $card.removeClass('lift');
+      }
+
+      $('#closeBtn').on('click', closeModal);
+      $backdrop.on('click', closeModal);
+      $(document).on('keydown', function(e){
+        if(e.key === 'Escape' && $modal.is(':visible')) {
+          if ($lightbox.attr('aria-hidden') === 'false') {
+            closeLightbox();
+          } else {
+            closeModal();
+          }
+        }
+      });
+
+      /* ---------- Focus trap ---------- */
+      function trapFocus(e){
+        if (e.key !== 'Tab') return;
+        const focusables = $modal.find(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        ).filter(':visible');
+        if (!focusables.length) return;
+
+        const first = focusables[0];
+        const last  = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus();
+        }
+      }
+
+      /* ---------- Swipe (letter -> photos) ---------- */
+      let startX = 0, startY = 0, swiping = false;
+      function onTouchStart(ev){
+        if (currentPage !== 0) return; // only on letter
+        const t = ev.originalEvent.touches?.[0] || ev;
+        startX = t.clientX; startY = t.clientY; swiping = true;
+      }
+      function onTouchMove(ev){
+        if (!swiping || currentPage !== 0) return;
+        const t = ev.originalEvent.touches?.[0] || ev;
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+        if (Math.abs(dx) > Math.abs(dy) && dx < -60 && typingDone) { // swipe left
+          swiping = false;
+          showPage(1);
+        }
+      }
+      function onTouchEnd(){ swiping = false; }
+      function addSwipeToNext(){
+        $modal.on('touchstart.swipe', onTouchStart);
+        $modal.on('touchmove.swipe',  onTouchMove);
+        $modal.on('touchend.swipe touchcancel.swipe', onTouchEnd);
+      }
+      function removeSwipeToNext(){
+        $modal.off('.swipe');
+      }
+
+      /* ---------- Lightbox for photos ---------- */
+      $('#polaroidGrid').on('click', '.polaroid__image', function(){
+        $lightboxImg.attr('src', this.getAttribute('src'));
+        $lightbox.attr('aria-hidden', 'false');
+      });
+      $lightbox.on('click', closeLightbox);
+      function closeLightbox(){
+        $lightbox.attr('aria-hidden', 'true');
+        $lightboxImg.attr('src', '');
+      }
+
+      /* ---------- Button -> open modal & type letter ---------- */
+      $btn.on('click', function(e){
+        e.preventDefault();
+        lastFocused = this; // restore focus on close
+
+        $('.envelope, .front, .card').fadeOut(180).promise().done(function(){
+          openModal();
+          showPage(0); // start on letter
+
+          if (letterShown) {
+            typingDone = true;
+            $next.prop('disabled', false);
+            return;
+          }
+
+          letterShown = true;
+          typingDone = false;
+
+          const message =
+`Our story began with a simple message, and look at us now — one beautiful month later.
+
+This is just the beginning, and I want you to know how deeply I care for you. 💖
+
+I'll always cherish our moments, big or small.
+
+Happy first monthsarry, my love. Here's to many more. 🥂
+
+Forever yours,
+Reniel John`;
+
+          $letter.empty();
+          const paragraphs = message.split("\\n\\n");
+
+          function typeParagraph(i){
+            if(i >= paragraphs.length){
+              typingDone = true;
+              $next.prop('disabled', false);
+              return;
+            }
+            const p = $('<p>').addClass('with-cursor').appendTo($letter);
+            const text = paragraphs[i];
+            let j = 0;
+            (function typeChar(){
+              if(j < text.length){
+                p.append(document.createTextNode(text.charAt(j)));
+                j++;
+                setTimeout(typeChar, 28);
+              }else{
+                p.removeClass('with-cursor');
+                setTimeout(() => typeParagraph(i+1), 320);
+              }
+            })();
+          }
+          $next.prop('disabled', true);
+          typeParagraph(0);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
